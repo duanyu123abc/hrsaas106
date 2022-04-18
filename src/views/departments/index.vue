@@ -9,12 +9,12 @@
         <el-tree :data="departs" :props="defaultProps" :default-expand-all="true">
           <!-- 传入内容 插槽内容 有多少节点就循环多少次 -->
           <!-- 作用域插槽 slot-scope="obj" 接收传递给插槽的数据 data 每个节点的数据对象-->
-          <tree-tools slot-scope="{ data }" :tree-node="data" @delDepts="getDepartments" />
+          <tree-tools slot-scope="{ data }" :tree-node="data" @addDepts="addDepts" @delDepts="getDepartments" />
         </el-tree>
       </el-card>
     </div>
     <!-- 放置新增弹层组件 -->
-    <add-dept :show-dialog="showDialog" />
+    <add-dept :show-dialog="showDialog" :tree-node="node" />
   </div>
 </template>
 
@@ -46,7 +46,7 @@ export default {
   methods: {
     async getDepartments() {
       const result = await getDepartments()
-      this.company = { name: result.companyName, manager: '负责人' }
+      this.company = { name: result.companyName, manager: '负责人', id: '' }
       this.departs = tranListToTreeData(result.depts, '')
       console.log(result)
     },
