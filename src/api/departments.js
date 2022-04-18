@@ -23,3 +23,11 @@ export function addDepartments(data) {
     data // axios的body参数 data
   })
 }
+
+// 获取某个部门的详情
+export function getDepartDetail(id) {
+  return request({
+    url: `/company/department/${id}`
+
+  })
+}

@@ -1,6 +1,6 @@
 <template>
   <!-- 放置弹层组件 -->
-  <el-dialog title="新增部门" :visible="showDialog" @close="btnCancel">
+  <el-dialog :title="showTitle" :visible="showDialog" @close="btnCancel">
     <!-- 表单数据 label-width设置所有标题的宽度-->
     <el-form ref="deptForm" :model="formData" :rules="rules" label-width="120px">
       <el-form-item label="部门名称" prop="name">
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getDepartments, addDepartments } from '@/api/departments'
+import { getDepartments, addDepartments, getDepartDetail } from '@/api/departments'
 import { getEmployeeSimple } from '@/api/employees'
 export default {
   props: {
@@ -86,9 +86,20 @@ export default {
       peoples: []
     }
   },
+  computed: {
+    showTitle() {
+      return this.formData.id ? '编辑部门' : '新增子部门'
+    }
+  },
   methods: {
     async getEmployeeSimple() {
       this.peoples = await getEmployeeSimple()
+    },
+    // 获取详情方法
+    async getDepartDetail(id) {
+      this.formData = await getDepartDetail(id)
+      // 父组件调用子组件  先设置了node数据  直接调用方法
+      // props是异步的
     },
     btnOK() {
       // 手动校验表单
@@ -102,13 +113,20 @@ export default {
           // 此时应该去修改showDialog值
           // Update:props名称
           this.$emit('update:showDialog', false)
-          // 关闭dialog的时候会触发el-dialog的close操作
+          // 关闭dialog的时候会触发el-dialog的close操作  所以这是不需要再单独的重置数据了
         }
       })
     },
     btnCancel() {
+      // 重置数据 因为resetFields只能重置表单上的数据 费表单的数据比如说id 不能重置
+      this.formData = {
+        name: '',
+        code: '',
+        manager: '',
+        introduce: ''
+      }
       this.$emit('update:showDialog', false)
-      // 清除之前的校验数据
+      // 清除之前的校验数据  只能重置定义在data中的数据
       this.$refs.deptForm.resetFields() // 重置校验事件
     }
   }
