@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getDepartments, addDepartments, getDepartDetail } from '@/api/departments'
+import { getDepartments, addDepartments, getDepartDetail, updateDepartments } from '@/api/departments'
 import { getEmployeeSimple } from '@/api/employees'
 export default {
   props: {
@@ -51,15 +51,30 @@ export default {
       const { depts } = await getDepartments()
       // 去找同级部门下 有没有和value相同的数据
       // 找到同级部门下的所有子部门
-      const isRepeat = depts.filter(item => item.pid === this.treeNode.id).some(item => item.name === value)
-      // const isRepeat = depts.some(item => item.name === value)
+      let isRepeat = false
+      if (this.formData.id) {
+        // 有id就是编辑模式
+        // 编辑 张三 => 校验规则 除了我之外 同级部门下 不能有叫张三的
+        isRepeat = depts.filter(item => item.pid === this.treeNode.pid && item.id !== this.treeNode.id).some(item => item.name === value)
+      } else {
+        // 没有id就是新增模式
+        isRepeat = depts.filter(item => item.pid === this.treeNode.id).some(item => item.name === value)
+      }
       // 如果isRepeat 为true 表示找到了一样的名字
       isRepeat ? callback(new Error(`同级部门下有${value}了`)) : callback()
     }
     const checkCodeRepeat = async(rule, value, callback) => {
       const { depts } = await getDepartments()
+      let isRepeat = false
+      if (this.formData.id) {
+        // 有id就是编辑模式
+        // 要求是不能有一样的id
+        isRepeat = depts.filter(item => item.id !== this.treeNode.id).some(item => item.code === value && value)
+      } else {
+        // 没有id就是新增模式
+        isRepeat = depts.some(item => item.code === value && value)
+      }
       // 要求编码 和所有的部门编码都不能重复 由于历史数据有可能没有Code 所以说这里加一个强制条件 就是value值不为空
-      const isRepeat = depts.some(item => item.code === value && value)
       isRepeat ? callback(new Error(`组织架构下有${value}编码了`)) : callback()
     }
     return {
@@ -105,9 +120,16 @@ export default {
       // 手动校验表单
       this.$refs.deptForm.validate(async isOK => {
         if (isOK) {
+          if (this.formData.id) {
+            // 编辑
+            await updateDepartments(this.formData)
+          } else {
+            // 新增
+            // 这里我们的ID设成了我的pid
+            await addDepartments({ ...this.formData, pid: this.treeNode.id })
+          }
           // 表单校验通过
-          // 这里我们的ID设成了我的pid
-          await addDepartments({ ...this.formData, pid: this.treeNode.id })
+
           // 告诉父组件
           this.$emit('addDepts') // 触发一个自定义事件
           // 此时应该去修改showDialog值
