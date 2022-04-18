@@ -1,8 +1,8 @@
 <template>
   <!-- 放置弹层组件 -->
-  <el-dialog title="新增部门" :visible="showDialog">
+  <el-dialog title="新增部门" :visible="showDialog" @close="btnCancel">
     <!-- 表单数据 label-width设置所有标题的宽度-->
-    <el-form ref="formData" :model="formData" :rules="rules" label-width="120px">
+    <el-form ref="deptForm" :model="formData" :rules="rules" label-width="120px">
       <el-form-item label="部门名称" prop="name">
         <el-input v-model="formData.name" style="width:80%" placeholder="1-50个字符" />
       </el-form-item>
@@ -11,7 +11,7 @@
       </el-form-item>
       <el-form-item label="部门负责人" prop="manager">
         <!-- native修饰符 可以找到原生元素的事件 -->
-        <el-select v-model="peoples.username" style="width:80%" placeholder="请选择" @focus="getEmployeeSimple">
+        <el-select v-model="formData.manager" style="width:80%" placeholder="请选择" @focus="getEmployeeSimple">
           <!-- 遍历选项 -->
           <el-option v-for="item in peoples" :key="item.id" :label="item.username" :value="item.username" />
         </el-select>
@@ -23,15 +23,15 @@
     <!-- 确定和取消 -->
     <el-row slot="footer" type="flex" justify="center">
       <el-col :span="6">
-        <el-button size="small">取消</el-button>
-        <el-button size="small" type="primary">确定</el-button>
+        <el-button size="small" @click="btnCancel">取消</el-button>
+        <el-button size="small" type="primary" @click="btnOK">确定</el-button>
       </el-col>
     </el-row>
   </el-dialog>
 </template>
 
 <script>
-import { getDepartments } from '@/api/departments'
+import { getDepartments, addDepartments } from '@/api/departments'
 import { getEmployeeSimple } from '@/api/employees'
 export default {
   props: {
@@ -89,6 +89,27 @@ export default {
   methods: {
     async getEmployeeSimple() {
       this.peoples = await getEmployeeSimple()
+    },
+    btnOK() {
+      // 手动校验表单
+      this.$refs.deptForm.validate(async isOK => {
+        if (isOK) {
+          // 表单校验通过
+          // 这里我们的ID设成了我的pid
+          await addDepartments({ ...this.formData, pid: this.treeNode.id })
+          // 告诉父组件
+          this.$emit('addDepts') // 触发一个自定义事件
+          // 此时应该去修改showDialog值
+          // Update:props名称
+          this.$emit('update:showDialog', false)
+          // 关闭dialog的时候会触发el-dialog的close操作
+        }
+      })
+    },
+    btnCancel() {
+      this.$emit('update:showDialog', false)
+      // 清除之前的校验数据
+      this.$refs.deptForm.resetFields() // 重置校验事件
     }
   }
 
