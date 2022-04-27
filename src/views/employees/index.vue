@@ -29,18 +29,18 @@
           </template>
         </el-table-column>
         <el-table-column label="账户状态" sortable="" prop="enableState">
-          <template v-slot="{row}">
+          <template v-slot="{ row }">
             <el-switch :value="row.enableState===1" />
           </template>
         </el-table-column>
         <el-table-column label="操作" sortable="" fixed="right" width="280">
-          <template>
+          <template v-slot="{row}">
             <el-button type="text" size="small">查看</el-button>
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
             <el-button type="text" size="small">角色</el-button>
-            <el-button type="text" size="small">删除</el-button>
+            <el-button type="text" size="small" @click="delEmployee(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { getEmployeeList } from '@/api/employees'
+import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees' // 引入员工枚举对象
 export default {
   data() {
@@ -94,6 +94,16 @@ export default {
       // 要去找1所对应的值
       const obj = EmployeeEnum.hireType.find(item => item.id === cellValue)
       return obj ? obj.value : '位置'
+    },
+    async delEmployee(id) {
+      try {
+        await this.$confirm('确定删除该员工？')
+        await delEmployee(id)
+        this.$message.success('删除员工成功')
+        this.getEmployeeList() // 重新拉去数据
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 }
