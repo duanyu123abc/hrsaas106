@@ -11,7 +11,7 @@
         <template v-slot:after>
           <el-button size="small" type="success">excel导入</el-button>
           <el-button size="small" type="danger">excel导出</el-button>
-          <el-button size="small" type="primary">新增员工</el-button>
+          <el-button size="small" type="primary" @click="showDialog = true">新增员工</el-button>
         </template>
       </page-tools>
       <!-- 表格组件 -->
@@ -55,13 +55,20 @@
         />
       </el-row>
     </div>
+    <!-- 放置组件弹层 -->
+    <!-- sync 子组件去改变父组件的数据的一个语法糖 -->
+    <add-employee :show-dialog.sync="showDialog" />
   </div>
 </template>
 
 <script>
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees' // 引入员工枚举对象
+import AddEmployee from './components/add-employee.vue'
 export default {
+  components: {
+    AddEmployee
+  },
   data() {
     return {
       list: [], // 接受数据
@@ -70,7 +77,8 @@ export default {
         size: 10,
         total: 0 // 总数
       },
-      loading: false // 显示遮罩层
+      loading: false, // 显示遮罩层
+      showDialog: false
     }
   },
   created() {
