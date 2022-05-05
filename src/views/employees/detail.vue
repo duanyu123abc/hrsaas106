@@ -20,9 +20,15 @@
           </el-tab-pane>
           <el-tab-pane label="个人详情">
             <!-- 放置内容 -->
+            <!-- <user-info /> -->
+            <!-- vuejs中 内置了一个组件 component 可以是任意组件 -->
+            <component :is="UserComponent" />
+            <!-- 动态组件 可以切换组件 is必须是变量 -->
           </el-tab-pane>
           <el-tab-pane label="岗位信息">
             <!-- 放置内容 -->
+            <component :is="JobComponent" />
+
           </el-tab-pane>
         </el-tabs>
       </el-card>
@@ -33,9 +39,17 @@
 <script>
 import { getUserDetailById } from '@/api/user'
 import { saveUserDetailById } from '@/api/employees'
+import UserInfo from './components/user-info.vue'
+import JobInfo from './components/job-info.vue'
 export default {
+  components: {
+    UserInfo,
+    JobInfo
+  },
   data() {
     return {
+      UserComponent: 'UserInfo',
+      JobComponent: 'JobInfo',
       userId: this.$router.params.id, // 直接将路由中的参数赋值给data中的属性
       userInfo: {
         username: '',
