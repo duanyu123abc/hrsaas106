@@ -72,10 +72,10 @@ export const constantRoutes = [
       path: '', // 二级路由什么都不写表示二级默认路由
       component: () => import('@/views/import')
     }]
-  },
+  }
 
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+
 ]
 // 定义一个动态路由变量
 // 这里导出这个变量，之后做权限会用到
