@@ -28,7 +28,9 @@
           <div slot="header" class="header">
             <span>工作日历</span>
           </div>
-        <!-- 放置日历组件 -->
+          <!-- 放置日历组件 -->
+          <WorkCalendar />
+          <!-- <component :is="'WorkCalendar'" /> -->
         </el-card>
         <!-- 公告 -->
         <el-card class="box-card">
@@ -87,7 +89,8 @@
           <div slot="header" class="header">
             <span>绩效指数</span>
           </div>
-        <!-- 放置雷达图 -->
+          <!-- 放置雷达图 -->
+          <radar />
         </el-card>
         <!-- 帮助连接 -->
         <el-card class="box-card">
@@ -125,10 +128,16 @@
 <script>
 import { mapGetters, createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('user')
+import WorkCalendar from './components/work-calendar.vue'
+import Radar from './components/radar.vue'
 // import { mapGetters } from 'vuex'
 
 export default {
   name: 'Dashboard',
+  components: {
+    WorkCalendar,
+    Radar
+  },
   data() {
     return {
       defaultImg: require('@/assets/common/head.jpg')
